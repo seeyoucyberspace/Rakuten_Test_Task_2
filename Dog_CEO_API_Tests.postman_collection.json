@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "08947995-ab2b-405c-aea7-25d08338591d",
+		"name": "Dog_CEO_API_Tests",
+		"description": "This repository contains automated API tests for the Dog CEO API. The tests were created using Postman to verify the functionality of the endpoint that provides information about dog breeds.\n\n## Task Description\n\nThe main goal of the task was to:\n\n- Make a request to the endpoint to retrieve the list of dog breeds.\n    \n- Validate the status code, schema, and perform data validation for the response.\n    \n\n## API Tested\n\n- **Endpoint:** `https://dog.ceo/api/breeds/list/all`\n    \n    - This endpoint returns a list of all dog breeds.\n        \n\n## Implemented Tests\n\n1. **Status Code Validation**\n    \n    - Ensures that the response status code is `200` indicating success.\n        \n2. **Schema Validation**\n    \n    - Checks if the JSON structure of the response matches the expected format.\n        \n3. **Data Validation Tests**\n    \n    - **Breeds List is Not Empty**: Verifies that the list of breeds contains at least one breed.\n        \n    - **Verify Specific Breed Exists**: Ensures that a specific breed (e.g., `labrador`) is present in the response.\n        \n    - **All Breeds Are Unique**: Validates that all breed names are unique.\n        \n    - **Sub-breeds Structure Is Valid**: Confirms that the sub-breeds are in the correct format and the structure is valid.\n        \n\n## Bonus Tests\n\n- **Additional Data Validation**\n    \n    - Checked that the list of all breeds is unique.\n        \n    - Verified the correct structure for sub-breeds.\n        \n\n## How to Run the Tests\n\n1. Clone this repository to your local machine;\n    \n2. Import the Postman collection into Postman;\n    \n3. Run the collection using the Postman Runner.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38065058"
+	},
+	"item": [
+		{
+			"name": "Status code is 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a list of individual dog breeds from the response",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create a list of individual dog breeds from the response\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const breeds = Object.keys(response.message);\r",
+							"\r",
+							"    // Create an array of all individual breeds\r",
+							"    let individualBreeds = [];\r",
+							"    breeds.forEach(breed => {\r",
+							"        if (response.message[breed].length === 0) {\r",
+							"            individualBreeds.push(breed);\r",
+							"        } else {\r",
+							"            response.message[breed].forEach(subBreed => {\r",
+							"                individualBreeds.push(`${breed} ${subBreed}`);\r",
+							"            });\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    // Logging the created list of individual breeds\r",
+							"    console.log(\"List of individual dog breeds:\", individualBreeds);\r",
+							"\r",
+							"    // Assert that the list is not empty\r",
+							"    pm.expect(individualBreeds.length).to.be.above(0);\r",
+							"\r",
+							"    // Assert that the list matches the expected pattern of breed names\r",
+							"    individualBreeds.forEach(breed => {\r",
+							"        pm.expect(breed).to.be.a('string');\r",
+							"        pm.expect(breed).to.match(/^[a-zA-Z\\s]+$/);  // Check that the breed name contains only letters and spaces\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schema validation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"message\": {\r",
+							"            \"type\": \"object\",\r",
+							"            \"patternProperties\": {\r",
+							"                \".*\": {\r",
+							"                    \"type\": \"array\",\r",
+							"                    \"items\": { \"type\": \"string\" }\r",
+							"                }\r",
+							"            }\r",
+							"        },\r",
+							"        \"status\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"message\", \"status\"]\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema validation\", function () {\r",
+							"    // Validate the JSON schema of the response\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"\r",
+							"    // Additional checks to ensure that the schema matches what we expect\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response).to.have.property('status');\r",
+							"    pm.expect(response.status).to.be.a('string');\r",
+							"    pm.expect(response.status).to.equal('success');\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Breeds list is not empty",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Breeds list is not empty\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    // Assert that the message contains at least one breed\r",
+							"    pm.expect(Object.keys(response.message).length).to.be.above(0);\r",
+							"\r",
+							"    // Check if each breed name is a non-empty string\r",
+							"    Object.keys(response.message).forEach(breed => {\r",
+							"        pm.expect(breed).to.be.a('string').that.is.not.empty;\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Status is success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is success\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    // Assert that the status field is 'success'\r",
+							"    pm.expect(response.status).to.eql(\"success\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify specific breed exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify specific breed exists\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const breeds = Object.keys(response.message);\r",
+							"    // Assert that the breed 'retriever' is present in the response\r",
+							"    pm.expect(breeds).to.include(\"retriever\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All breeds are unique",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"All breeds are unique\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const breeds = Object.keys(response.message);\r",
+							"\r",
+							"    // Flatten the list of breeds, including sub-breeds\r",
+							"    let allBreeds = [];\r",
+							"    breeds.forEach(breed => {\r",
+							"        if (response.message[breed].length === 0) {\r",
+							"            allBreeds.push(breed);\r",
+							"        } else {\r",
+							"            response.message[breed].forEach(subBreed => {\r",
+							"                allBreeds.push(`${breed} ${subBreed}`);\r",
+							"            });\r",
+							"        }\r",
+							"    });\r",
+							"\r",
+							"    // Verify that all breeds are unique\r",
+							"    const uniqueBreeds = [...new Set(allBreeds)];\r",
+							"    pm.expect(allBreeds.length).to.eql(uniqueBreeds.length);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sub-breeds structure is valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sub-breeds structure is valid\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    const breeds = Object.keys(response.message);\r",
+							"\r",
+							"    // Assert that the sub-breeds for each breed are in the correct format\r",
+							"    breeds.forEach(breed => {\r",
+							"        pm.expect(response.message[breed]).to.be.an(\"array\");\r",
+							"\r",
+							"        // Assert that each sub-breed name is a valid string\r",
+							"        response.message[breed].forEach(subBreed => {\r",
+							"            pm.expect(subBreed).to.be.a('string').that.is.not.empty;\r",
+							"        });\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dog.ceo/api/breeds/list/all",
+					"protocol": "https",
+					"host": [
+						"dog",
+						"ceo"
+					],
+					"path": [
+						"api",
+						"breeds",
+						"list",
+						"all"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
