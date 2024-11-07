@@ -1,4 +1,4 @@
-# Dog CEO API Automated Tests
+# API Automated Tests
 
 This repository contains automated API tests for the [Dog CEO API](https://dog.ceo/dog-api/). The tests were created using Postman to verify the functionality of the endpoint that provides information about dog breeds.
 
